@@ -46,17 +46,18 @@ python3 -m http.server 8000
 
 ## 部署到 GitHub Pages
 
-仓库已经包含 GitHub Actions 工作流：
+仓库使用 GitHub Pages 的“从分支发布”模式：
 
-- 推送到 `main` 分支后自动部署
-- 部署目标为 GitHub Pages
+- 发布分支：`main`
+- 发布目录：`/ (root)`
 
 ### 手动步骤
 
 1. 创建 GitHub 仓库
 2. 推送代码到 `main`
-3. 在 GitHub 仓库 Settings -> Pages 中确认 Source 使用 GitHub Actions
-4. 等待 Actions 完成部署
+3. 在 GitHub 仓库 Settings -> Pages 中确认 Source 为 `Deploy from a branch`
+4. Branch 选择 `main`，目录选择 `/ (root)`
+5. 等待 GitHub Pages 发布完成
 
 ## 可修改项
 
