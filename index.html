@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Palette Flow - GPT Image 2</title>
+    <meta
+      name="description"
+      content="一个可直接部署到 GitHub Pages 的 GPT Image 2 静态生成器 MVP。"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="ambient ambient-left"></div>
+      <div class="ambient ambient-right"></div>
+
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">GitHub Pages MVP</p>
+          <h1>Palette Flow</h1>
+          <p class="hero-text">
+            一个轻量、可公开托管的 <span>GPT Image 2</span> 图像生成页。
+            页面本身可直接发布到 GitHub Pages，接口地址与 API Key 只保存在你的浏览器本地。
+          </p>
+          <div class="hero-tags">
+            <span>静态部署</span>
+            <span>本地保存配置</span>
+            <span>支持下载图片</span>
+          </div>
+        </div>
+
+        <aside class="status-card">
+          <p class="status-label">当前模式</p>
+          <p class="status-title">Client-side MVP</p>
+          <p class="status-text">
+            适合快速验证接口与产品感觉；不适合在公开仓库里硬编码密钥。
+          </p>
+        </aside>
+      </header>
+
+      <main class="layout">
+        <section class="panel control-panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">01 / 配置</p>
+              <h2>连接参数</h2>
+            </div>
+            <button id="clearConfigButton" class="ghost-button" type="button">清空本地配置</button>
+          </div>
+
+          <form id="generatorForm" class="stack">
+            <label class="field">
+              <span>API Endpoint</span>
+              <input
+                id="endpointInput"
+                name="endpoint"
+                type="url"
+                placeholder="https://example.com/v1/images/generations"
+                required
+              />
+            </label>
+
+            <label class="field">
+              <span>API Key</span>
+              <div class="input-row">
+                <input
+                  id="apiKeyInput"
+                  name="apiKey"
+                  type="password"
+                  placeholder="sk-..."
+                  autocomplete="off"
+                  required
+                />
+                <button id="toggleKeyButton" class="ghost-button slim" type="button">显示</button>
+              </div>
+            </label>
+
+            <div class="grid two-up">
+              <label class="field">
+                <span>Model</span>
+                <input id="modelInput" name="model" type="text" value="gpt-image-2" required />
+              </label>
+
+              <label class="field">
+                <span>图片数量</span>
+                <select id="countInput" name="count">
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="grid two-up">
+              <label class="field">
+                <span>尺寸</span>
+                <select id="sizeInput" name="size">
+                  <option value="1024x1024">1024 x 1024</option>
+                  <option value="1536x1024">1536 x 1024</option>
+                  <option value="1024x1536">1024 x 1536</option>
+                  <option value="auto">auto</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>背景</span>
+                <select id="backgroundInput" name="background">
+                  <option value="auto">auto</option>
+                  <option value="opaque">opaque</option>
+                  <option value="transparent">transparent</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Prompt</span>
+              <textarea
+                id="promptInput"
+                name="prompt"
+                rows="8"
+                placeholder="例如：一张高级感杂志封面的产品海报，奶油白背景，柔和晨光，精致阴影，英文排版留白。"
+                required
+              ></textarea>
+            </label>
+
+            <div class="preset-row" aria-label="示例提示词">
+              <button class="preset-chip" data-prompt="A premium skincare bottle floating above travertine stone, cream backdrop, editorial lighting, elegant shadows, luxury campaign aesthetic." type="button">护肤品海报</button>
+              <button class="preset-chip" data-prompt="A cinematic travel poster for Shanghai at sunrise, artful clouds, reflective skyline, warm gold tones, bold typography space." type="button">城市海报</button>
+              <button class="preset-chip" data-prompt="A playful flat-lay of creative tools on textured paper, cheerful color palette, soft daylight, crisp detail, modern brand campaign." type="button">品牌平铺</button>
+            </div>
+
+            <div class="action-row">
+              <button id="generateButton" class="primary-button" type="submit">生成图片</button>
+              <p class="hint">配置会保存在当前浏览器的 localStorage，不会写入仓库。</p>
+            </div>
+          </form>
+        </section>
+
+        <section class="panel output-panel">
+          <div class="panel-head">
+            <div>
+              <p class="section-kicker">02 / 输出</p>
+              <h2>生成结果</h2>
+            </div>
+            <p id="requestStatus" class="request-status">等待生成</p>
+          </div>
+
+          <div id="emptyState" class="empty-state">
+            <p>先填写配置和 prompt，再点击“生成图片”。</p>
+          </div>
+
+          <div id="errorBox" class="error-box hidden" role="alert"></div>
+
+          <div id="resultsGrid" class="results-grid"></div>
+
+          <details class="payload-box">
+            <summary>查看本次请求参数</summary>
+            <pre id="payloadPreview">尚未发起请求</pre>
+          </details>
+        </section>
+      </main>
+    </div>
+
+    <template id="resultCardTemplate">
+      <article class="result-card">
+        <div class="image-shell">
+          <img alt="生成结果" loading="lazy" />
+        </div>
+        <div class="result-meta">
+          <p class="result-title"></p>
+          <a class="download-link" target="_blank" rel="noopener noreferrer">下载图片</a>
+        </div>
+      </article>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
